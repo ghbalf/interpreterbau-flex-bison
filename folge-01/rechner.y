@@ -12,6 +12,7 @@ typedef struct { int64_t wert; int knoten; } Wert;
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include "ausgabe.h"
 #ifdef _WIN32                      /* Windows: Konsole auf UTF-8 (für „Überlauf“), isatty heißt dort _isatty */
 #include <io.h>
@@ -122,44 +123,55 @@ static int yyreport_syntax_error(const yypcontext_t *ctx)
 void yyerror(const char *s) { fprintf(stderr, "Fehler: %s\n", s); fehler_gesamt++; }
 
 /* ---- Parse-Baum für Graphviz ---- */
+/* Der Baum wird erst gesammelt und am Zeilenende ausgegeben. Eigener wachsender Puffer
+ * statt open_memstream, weil es das unter Windows nicht gibt. */
 static char *baum_text;
-static size_t baum_laenge;
-static FILE *baum;
+static size_t baum_laenge, baum_platz;
 static int naechste_nummer;
 
-static void baum_start(void)
+static void baum_schreibe(const char *format, ...)
 {
-    if (!baum) baum = open_memstream(&baum_text, &baum_laenge);
+    va_list args;
+    va_start(args, format);
+    int n = vsnprintf(NULL, 0, format, args);
+    va_end(args);
+    if (baum_laenge + n + 1 > baum_platz) {
+        baum_platz = 2 * (baum_laenge + n + 1);
+        baum_text = realloc(baum_text, baum_platz);
+        if (!baum_text) { perror("realloc"); exit(1); }
+    }
+    va_start(args, format);
+    vsnprintf(baum_text + baum_laenge, n + 1, format, args);
+    va_end(args);
+    baum_laenge += n;
 }
 
 int baum_blatt(const char *text)
 {
     if (!zeige_baum) return 0;
-    baum_start();
     int nr = ++naechste_nummer;
-    fprintf(baum, "  n%d [label=\"%s\", shape=box, style=filled, fillcolor=\"#ffe9a8\"];\n", nr, text);
+    baum_schreibe("  n%d [label=\"%s\", shape=box, style=filled, fillcolor=\"#ffe9a8\"];\n", nr, text);
     return nr;
 }
 
 int baum_knoten(const char *regel, int k1, int k2, int k3)
 {
     if (!zeige_baum) return 0;
-    baum_start();
     int nr = ++naechste_nummer;
-    fprintf(baum, "  n%d [label=\"%s\"];\n", nr, regel);
+    baum_schreibe("  n%d [label=\"%s\"];\n", nr, regel);
     int kinder[] = { k1, k2, k3 };
     for (int i = 0; i < 3; i++)
-        if (kinder[i]) fprintf(baum, "  n%d -> n%d;\n", nr, kinder[i]);
+        if (kinder[i]) baum_schreibe("  n%d -> n%d;\n", nr, kinder[i]);
     return nr;
 }
 
 void baum_ausgeben(int wurzel)
 {
     (void)wurzel;
-    fflush(baum);
-    printf("digraph parsebaum {\n  ordering=out;\n  node [fontname=\"DejaVu Sans Mono\"];\n%s}\n", baum_text);
-    fclose(baum); free(baum_text);
-    baum = NULL; baum_text = NULL; naechste_nummer = 0;
+    printf("digraph parsebaum {\n  ordering=out;\n  node [fontname=\"DejaVu Sans Mono\"];\n%s}\n",
+           baum_text ? baum_text : "");
+    free(baum_text);
+    baum_text = NULL; baum_laenge = baum_platz = 0; naechste_nummer = 0;
 }
 
 int main(int argc, char **argv)
