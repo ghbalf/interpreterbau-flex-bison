@@ -2,7 +2,7 @@
 # Folge 1: Regressionstests für den Rechner. Aufruf: ./test.sh (oder make test)
 fehler=0
 pruefe() {  # pruefe "Eingabe" "erwartete Ausgabe (stdout+stderr)"
-    ist=$(printf '%s\n' "$1" | ./rechner 2>&1)
+    ist=$(printf '%s\n' "$1" | ./rechner 2>&1 | tr -d '\r')   # tr: Windows schreibt \r\n
     if [ "$ist" = "$2" ]; then echo "ok    $1"
     else echo "FEHLT $1"; echo "      erwartet: $2"; echo "      erhalten: $ist"; fehler=1; fi
 }

@@ -13,6 +13,14 @@ typedef struct { int64_t wert; int knoten; } Wert;
 #include <stdlib.h>
 #include <string.h>
 #include "ausgabe.h"
+#ifdef _WIN32                      /* Windows: Konsole auf UTF-8 (für „Überlauf“), isatty heißt dort _isatty */
+#include <io.h>
+#include <windows.h>
+#define isatty _isatty
+#define fileno _fileno
+#else
+#include <unistd.h>
+#endif
 int yylex(void);
 void yyerror(const char *s);
 
@@ -163,6 +171,16 @@ int main(int argc, char **argv)
         else if (!strcmp(argv[i], "-s")) yydebug = 1;   /* Bisons eigenes Protokoll (stderr) */
         else { fprintf(stderr, "Aufruf: %s [-t] [-r] [-d] [-s] < eingabe\n", argv[0]); return 2; }
     }
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+#endif
+    if (isatty(fileno(stdin)))          /* von Hand gestartet, z. B. per Doppelklick: kurz sagen, was geht */
+        fprintf(stderr, "Rechner aus Folge 1. Ausdruck eingeben, z. B. 2*(3+4), dann Enter.\n"
+#ifdef _WIN32
+                        "Beenden: Strg+Z, dann Enter (oder Fenster schließen).\n");
+#else
+                        "Beenden: Strg+D.\n");
+#endif
     setvbuf(stdout, NULL, _IOLBF, 0);   /* Ergebnisse und Fehler in richtiger Reihenfolge */
     yyparse();
     return fehler_gesamt ? 1 : 0;
