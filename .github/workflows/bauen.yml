@@ -60,4 +60,6 @@ jobs:
       - uses: actions/download-artifact@v4
       - run: for d in rechner-*; do (cd "$d" && chmod +x rechner* && zip -q "../$d.zip" *); done
       - env: { GH_TOKEN: "${{ github.token }}" }
-        run: gh release create "${{ github.ref_name }}" rechner-*.zip --repo "${{ github.repository }}" --title "${{ github.ref_name }}" --notes "Fertige Programme zum Ausprobieren. Anleitung: INSTALLATION.md"
+        run: |
+          gh release create "${{ github.ref_name }}" rechner-*.zip --repo "${{ github.repository }}" \
+            --title "${{ github.ref_name }}" --notes "Fertige Programme zum Ausprobieren. Anleitung in INSTALLATION.md"
