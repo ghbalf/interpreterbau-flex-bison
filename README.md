@@ -5,9 +5,9 @@ Später kommt LLVM dazu.
 
 Jede Folge hat einen eigenen Ordner mit lauffähigem Code und einem Begleitdokument (`README.md`) zum Nachlesen.
 
-| Folge | Thema | Ordner |
-|---|---|---|
-| 1 | Was ist ein Interpreter? Ein Rechner mit Flex und Bison | [`folge-01/`](folge-01/) |
+| Folge | Thema | Video | Ordner |
+|---|---|---|---|
+| 1 | Was ist ein Interpreter? Ein Rechner mit Flex und Bison | [YouTube](https://youtu.be/Ejb01tQOfRw) | [`folge-01/`](folge-01/) |
 
 ## Selbst ausprobieren
 

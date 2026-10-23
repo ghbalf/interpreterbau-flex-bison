@@ -1,6 +1,6 @@
 # Folge 1: Was ist ein Interpreter?
 
-*Begleitdokument zum Video. Der Code liegt in diesem Ordner. Alles hier Gezeigte ist gebaut und getestet (`make test`: 16 von 16 ok).*
+*Begleitdokument zum Video: https://youtu.be/Ejb01tQOfRw. Der Code liegt in diesem Ordner. Alles hier Gezeigte ist gebaut und getestet (`make test`: 16 von 16 ok).*
 
 ## Die Frage dieser Folge
 
