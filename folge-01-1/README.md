@@ -1,6 +1,6 @@
 # Folge 1.1: Ganzzahlen im Computer
 
-Begleitdokument zum Extra-Video „Ganzzahlen im Computer“. Es gibt keinen neuen Code: Alle Beispiele laufen mit dem Rechner aus [`folge-01/`](../folge-01/).
+Begleitdokument zum Extra-Video „Ganzzahlen im Computer“ (Video folgt). Es gibt keinen neuen Code: Alle Beispiele laufen mit dem Rechner aus [`folge-01/`](../folge-01/).
 
 **Die Frage dieser Folge:** Warum meldet unser Rechner bei `9223372036854775807+1` einen Fehler, und warum kann man `-9223372036854775808` nicht direkt hinschreiben?
 
