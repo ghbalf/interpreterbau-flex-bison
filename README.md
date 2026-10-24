@@ -8,7 +8,7 @@ Jede Folge hat einen eigenen Ordner mit lauffähigem Code und einem Begleitdokum
 | Folge | Thema | Video | Ordner |
 |---|---|---|---|
 | 1 | Was ist ein Interpreter? Ein Rechner mit Flex und Bison | [YouTube](https://youtu.be/Ejb01tQOfRw) | [`folge-01/`](folge-01/) |
-| 1.1 | Ganzzahlen im Computer (Extra-Video) | folgt | [`folge-01-1/`](folge-01-1/) |
+| 1.1 | Ganzzahlen im Computer (Extra-Video) | [YouTube](https://youtu.be/d4KiZVTZEug) | [`folge-01-1/`](folge-01-1/) |
 
 ## Selbst ausprobieren
 
