@@ -4,3 +4,5 @@ rechner.tab.h
 lex.yy.c
 parsebaum.svg
 parsebaum.png
+ast.svg
+ast.png
