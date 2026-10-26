@@ -1,6 +1,7 @@
 # Baut und testet den Rechner auf Linux, Windows und macOS.
 # Bei jedem Push: nur bauen und testen.
-# Bei einem Tag wie "folge-01-v1": zusätzlich fertige Programme unter "Releases" bereitstellen.
+# Gebaut werden alle Folgen mit Programm (Matrix "folge").
+# Bei einem Tag wie "folge-02-v1": zusätzlich fertige Programme dieser Folge unter "Releases" bereitstellen.
 # Die Schritte entsprechen denen in INSTALLATION.md; läuft es hier, läuft die Anleitung auch.
 name: bauen
 
@@ -12,8 +13,9 @@ on:
 
 jobs:
   linux:
+    strategy: { fail-fast: false, matrix: { folge: [folge-01, folge-02] } }
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: folge-01 } }
+    defaults: { run: { working-directory: "${{ matrix.folge }}" } }
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update && sudo apt-get install -y flex bison
@@ -21,11 +23,12 @@ jobs:
       - run: ./test.sh
       - run: mkdir -p ../paket && cp rechner ../LICENSE ../paket/
       - uses: actions/upload-artifact@v4
-        with: { name: rechner-linux-x86_64, path: paket/ }
+        with: { name: "${{ matrix.folge }}-rechner-linux-x86_64", path: paket/ }
 
   windows:
+    strategy: { fail-fast: false, matrix: { folge: [folge-01, folge-02] } }
     runs-on: windows-latest
-    defaults: { run: { shell: "msys2 {0}", working-directory: folge-01 } }
+    defaults: { run: { shell: "msys2 {0}", working-directory: "${{ matrix.folge }}" } }
     steps:
       - uses: actions/checkout@v4
       - uses: msys2/setup-msys2@v2
@@ -36,11 +39,12 @@ jobs:
       - run: ./test.sh
       - run: mkdir -p ../paket && cp rechner.exe ../LICENSE ../paket/
       - uses: actions/upload-artifact@v4
-        with: { name: rechner-windows-x86_64, path: paket/ }
+        with: { name: "${{ matrix.folge }}-rechner-windows-x86_64", path: paket/ }
 
   macos:
+    strategy: { fail-fast: false, matrix: { folge: [folge-01, folge-02] } }
     runs-on: macos-latest
-    defaults: { run: { working-directory: folge-01 } }
+    defaults: { run: { working-directory: "${{ matrix.folge }}" } }
     steps:
       - uses: actions/checkout@v4
       - run: brew install bison          # macOS bringt nur Bison 2.3 (2006) mit
@@ -49,7 +53,7 @@ jobs:
       - run: ./test.sh
       - run: mkdir -p ../paket && cp rechner ../LICENSE ../paket/
       - uses: actions/upload-artifact@v4
-        with: { name: rechner-macos-universal, path: paket/ }
+        with: { name: "${{ matrix.folge }}-rechner-macos-universal", path: paket/ }
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
@@ -58,7 +62,10 @@ jobs:
     permissions: { contents: write }
     steps:
       - uses: actions/download-artifact@v4
-      - run: for d in rechner-*; do (cd "$d" && chmod +x rechner* && zip -q "../$d.zip" *); done
+      # Tag "folge-02-v1" -> Ordner "folge-02": nur dessen Programme kommen ins Release
+      - run: |
+          folge="${GITHUB_REF_NAME%-v*}"
+          for d in "$folge"-rechner-*; do (cd "$d" && chmod +x rechner* && zip -q "../${d#"$folge"-}.zip" *); done
       - env: { GH_TOKEN: "${{ github.token }}" }
         run: |
           gh release create "${{ github.ref_name }}" rechner-*.zip --repo "${{ github.repository }}" \
