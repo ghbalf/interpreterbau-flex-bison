@@ -139,7 +139,13 @@ int main(int argc, char **argv)
 #else
                         "Beenden: Strg+D.\n");
 #endif
-    setvbuf(stdout, NULL, _IOLBF, 0);   /* Ergebnisse und Fehler in richtiger Reihenfolge */
+    /* Ergebnisse und Fehler in richtiger Reihenfolge. Windows kennt keine Zeilenpufferung (_IOLBF wirkt dort wie
+       volle Pufferung), deshalb dort ganz ungepuffert. */
+#ifdef _WIN32
+    setvbuf(stdout, NULL, _IONBF, 0);
+#else
+    setvbuf(stdout, NULL, _IOLBF, 0);
+#endif
     yyparse();
     return fehler_gesamt ? 1 : 0;
 }
